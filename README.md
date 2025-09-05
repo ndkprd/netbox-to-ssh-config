@@ -1,13 +1,13 @@
 # Netbox to SSH Config
 
-A simple script to convert Netbox device and virtual machine data to an SSH config file.
+A simple script to convert Netbox device and virtual machine data to an SSH config file. Very useful if you're using another tool that uses existing SSH config like VSCode or [lazyssh](https://github.com/Adembc/lazyssh) and already have a Netbox instance set up.
 
-## Assumption
+## Assumptions
 
-Since I basically only use this script for myself, currently the script only supports the following assumptions:
-- Use the same username for all SSH connections;
-- Use the same port for all SSH connections, defaults to 22;
-- Use the same SSH key for all SSH connections.
+Since I currently only uses this script for myself, currently the script only supports some bare minimum for my needs:
+- It only tracks devices and virtual machines with a primary IP;
+- It uses the same username and SSH key that are defined using environment variables for all connections, so it only supports one username and SSH key;
+- I set a hardcoded limit of 1000 entries for each device and VMs.
 
 ## Usage
 

@@ -3,7 +3,41 @@
 import os
 import sys
 import requests
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, Template
+
+# Constants
+DEFAULT_LIMIT = 1000
+
+# SSH config template
+SSH_CONFIG_TEMPLATE = """# Devices
+
+{%- for device in netbox_devices.results %}
+{%- if device.primary_ip and device.primary_ip.address %}
+
+# Netbox URL: {{ device.url }}
+Host {{ device.name}}
+    User {{ ssh_user }}
+    Hostname {{ device.primary_ip.address.split("/")[0] }}
+    Port {{ ssh_port }}
+    IdentityFile {{ ssh_key }}
+
+{%- endif %}
+{%- endfor %}
+
+# Virtual Machines
+{%- for vm in netbox_vms.results %}
+{%- if vm.primary_ip and vm.primary_ip.address %}
+
+# Netbox URL: {{ vm.url }}
+Host {{ vm.name}}
+    User {{ ssh_user }}
+    Hostname {{ vm.primary_ip.address.split("/")[0] }}
+    Port {{ ssh_port }}
+    IdentityFile {{ ssh_key }}
+
+{%- endif %}
+{%- endfor %}
+"""
 
 def get_env_var(name, required=True, default=None):
     """Get environment variable with optional default."""
@@ -42,16 +76,15 @@ def main():
     
     # Fetch data from NetBox
     print("Fetching devices from NetBox...")
-    netbox_devices = fetch_netbox_data(netbox_url, netbox_token, 'dcim/devices/?primary_ip4__empty=False&limit=1000')
+    netbox_devices = fetch_netbox_data(netbox_url, netbox_token, f'dcim/devices/?primary_ip4__empty=False&limit={DEFAULT_LIMIT}')
     
     print("Fetching virtual machines from NetBox...")
-    netbox_vms = fetch_netbox_data(netbox_url, netbox_token, 'virtualization/virtual-machines/?primary_ip4__empty=False&limit=1000')
+    netbox_vms = fetch_netbox_data(netbox_url, netbox_token, f'virtualization/virtual-machines/?primary_ip4__empty=False&limit={DEFAULT_LIMIT}')
     
     print(f"Found {len(netbox_devices['results'])} devices and {len(netbox_vms['results'])} VMs")
     
     # Load and render template
-    env = Environment(loader=FileSystemLoader('.'))
-    template = env.get_template('ssh_config.j2')
+    template = Template(SSH_CONFIG_TEMPLATE)
     
     # Render SSH config
     ssh_config = template.render(
