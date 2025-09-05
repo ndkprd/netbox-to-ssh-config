@@ -19,6 +19,16 @@ Set the following environment variables:
 - `SSH_PRIVATE_KEY_PATH`: The path to the SSH key to use for SSH connections;
 - `SSH_CONFIG_PATH`: The path to save the generated SSH config file, defaults to `~/.ssh/config`.
 
+Install the requirements:
+```bash
+pip install -r requirements.txt
+```
+
+Run the script:
+```bash
+python netbox_to_ssh.py
+```
+
 ## License
 
 [MIT](./LICENSE)
